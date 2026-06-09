@@ -47,7 +47,7 @@ export default function AuthGuard({ children }) {
       <div className="min-h-screen w-full flex items-center justify-center bg-[#f5f4f0] p-4">
         <div className="max-w-sm w-full bg-white p-8 rounded-2xl shadow-sm border border-neutral-200 flex flex-col items-center">
           <div className="w-56 h-20 relative mb-6">
-            <Image src="/companylogo.png" alt="Company Logo" fill sizes="224px" className="object-contain" />
+            <Image src="/companylogo.png" alt="Company Logo" fill sizes="224px" className="object-contain" priority />
           </div>
           <h1 className="text-xl font-bold tracking-tight text-neutral-900 mb-2">Canaan CMS</h1>
           <p className="text-xs text-neutral-500 mb-6 text-center">Please enter the admin password to continue.</p>
@@ -61,6 +61,7 @@ export default function AuthGuard({ children }) {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full bg-[#f5f4f0] rounded-xl pl-10 pr-4 py-3 text-sm font-medium text-neutral-900 placeholder:text-neutral-400 outline-none border border-transparent focus:border-neutral-300 transition-colors"
+                autoComplete="username"
                 autoFocus
               />
             </div>
@@ -71,6 +72,7 @@ export default function AuthGuard({ children }) {
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
                 className="w-full bg-[#f5f4f0] rounded-xl pl-10 pr-4 py-3 text-sm font-medium text-neutral-900 placeholder:text-neutral-400 outline-none border border-transparent focus:border-neutral-300 transition-colors"
               />
             </div>

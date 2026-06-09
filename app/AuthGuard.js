@@ -46,8 +46,8 @@ export default function AuthGuard({ children }) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-[#f5f4f0] p-4">
         <div className="max-w-sm w-full bg-white p-8 rounded-2xl shadow-sm border border-neutral-200 flex flex-col items-center">
-          <div className="w-56 h-20 relative mb-6">
-            <Image src="/companylogo.png" alt="Company Logo" fill sizes="224px" className="object-contain" priority />
+          <div className="flex justify-center mb-6">
+            <Image src="/companylogo.png" alt="Company Logo" width={224} height={80} className="object-contain" priority />
           </div>
           <h1 className="text-xl font-bold tracking-tight text-neutral-900 mb-2">Canaan CMS</h1>
           <p className="text-xs text-neutral-500 mb-6 text-center">Please enter the admin password to continue.</p>

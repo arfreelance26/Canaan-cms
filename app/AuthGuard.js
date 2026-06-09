@@ -23,11 +23,15 @@ export default function AuthGuard({ children }) {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const formData = new FormData();
-      formData.append("username", username);
-      formData.append("password", password);
+      const params = new URLSearchParams();
+      params.append("username", username);
+      params.append("password", password);
       
-      const res = await api.post("/auth/login", formData);
+      const res = await api.post("/auth/login", params, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      });
       sessionStorage.setItem("token", res.data.access_token);
       setIsAuthenticated(true);
       setError("");

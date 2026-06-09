@@ -33,11 +33,11 @@ export default function CargosPage() {
         targetId = res.data.id;
       }
       if (selectedImages.length > 0 && targetId && targetId !== "new") {
+        const fd = new FormData();
         for (let img of selectedImages) {
-          const fd = new FormData();
-          fd.append("file", img);
-          await api.post(`/cargos/${targetId}/images`, fd);
+          fd.append("files", img);
         }
+        await api.post(`/cargos/${targetId}/images`, fd);
       }
       setFormData({ name: "" });
       setEditingId(null);

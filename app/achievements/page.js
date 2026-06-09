@@ -32,11 +32,11 @@ export default function AchievementsPage() {
       savedItem = res.data;
     }
     if (selectedImages.length > 0) {
+      const fd = new FormData();
       for (let img of selectedImages) {
-        const fd = new FormData();
-        fd.append("file", img);
-        await api.post(`/achievements/${savedItem.id}/images`, fd);
+        fd.append("files", img);
       }
+      await api.post(`/achievements/${savedItem.id}/images`, fd);
     }
     setFormData({ title: "", description: "" });
     setEditingId(null);

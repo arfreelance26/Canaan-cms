@@ -1,65 +1,110 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState } from "react";
+import api from "./api";
+import {
+  Trophy, FileText, ShieldCheck, Layers, Users, Package, MapPin
+} from "lucide-react";
+import Link from "next/link";
+
+const CARDS = [
+  { label: "Achievements", endpoint: "/achievements/", icon: Trophy, suffix: "milestones" },
+  { label: "Circulars", endpoint: "/circulars/", icon: FileText, suffix: "documents" },
+  { label: "Licenses", endpoint: "/licenses/", icon: ShieldCheck, suffix: "credentials" },
+  { label: "Services", endpoint: "/services/", icon: Layers, suffix: "offerings" },
+  { label: "Team Members", endpoint: "/teams/", icon: Users, suffix: "people" },
+  { label: "Branches", endpoint: "/branches/", icon: MapPin, suffix: "locations" },
+  { label: "Cargo Categories", endpoint: "/cargos/", icon: Package, suffix: "categories" },
+];
 
 export default function Home() {
+  const [counts, setCounts] = useState({});
+
+  useEffect(() => {
+    CARDS.forEach(async ({ label, endpoint }) => {
+      try {
+        const res = await api.get(endpoint);
+        setCounts((prev) => ({ ...prev, [label]: res.data.length }));
+      } catch {
+        setCounts((prev) => ({ ...prev, [label]: "—" }));
+      }
+    });
+  }, []);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
+    <section className="relative bg-[#f5f4f0] font-sans flex flex-col p-4 sm:p-5 gap-3 min-h-screen">
+
+      {/* ── HEADER CARD ── */}
+      <div className="relative rounded-2xl overflow-hidden bg-white px-6 py-8 sm:px-10 sm:py-10 border border-black/5">
+        <div className="absolute top-0 left-0 bg-[#f5f4f0] px-5 py-3 rounded-br-2xl">
+          <span className="text-[10px] font-medium tracking-[0.12em] uppercase text-neutral-400">
+            Admin Panel
+          </span>
+        </div>
+        <div className="absolute top-0 right-0 bg-[#f5f4f0] px-5 py-3 rounded-bl-2xl flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+          <span className="text-[11px] font-medium text-neutral-900 tracking-tight">
+            System active
+          </span>
+        </div>
+        <div className="mt-8">
+          <h1 className="text-3xl sm:text-[2.6rem] font-bold tracking-[-0.03em] leading-[1.1]">
+            Welcome back,<br />
+            <span style={{ color: "#85660c" }} className="italic font-normal">Canaan Global.</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-sm text-neutral-500 mt-3 max-w-sm leading-relaxed">
+            Manage your logistics content, team, and credentials from one place.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      </div>
+
+      {/* ── COMBINED MODULES GRID ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+        {CARDS.map(({ label, endpoint, icon: Icon, suffix }, i) => (
+          <Link
+            key={label}
+            href={`/${label.toLowerCase().replace(" ", "-")}`}
+            className="group relative rounded-2xl bg-white border border-black/5 hover:border-[#85660c]/30 overflow-hidden flex flex-col p-6 transition-all duration-300 hover:shadow-xl hover:shadow-[#85660c]/5 hover:-translate-y-1"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+            {/* Top section */}
+            <div className="flex justify-between items-start mb-8">
+              <div
+                className="w-12 h-12 rounded-xl flex items-center justify-center transition-colors"
+                style={{ background: "rgba(133,102,12,0.06)", color: "#85660c" }}
+              >
+                <Icon size={20} strokeWidth={1.5} />
+              </div>
+              <span className="text-[10px] font-semibold tracking-[0.1em] uppercase text-neutral-300">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+            </div>
+
+            {/* Middle section (Count) */}
+            <div className="flex flex-col gap-1">
+              <span className="text-4xl font-bold tracking-[-0.04em] text-neutral-900 leading-none">
+                {counts[label] ?? "—"}
+              </span>
+              <span
+                className="text-[10px] font-semibold tracking-[0.12em] uppercase mt-1"
+                style={{ color: "#85660c" }}
+              >
+                {suffix}
+              </span>
+            </div>
+
+            {/* Bottom section (Link) */}
+            <div className="mt-8 flex items-center justify-between border-t border-neutral-100 pt-4">
+              <span className="text-sm font-semibold text-neutral-900">
+                {label}
+              </span>
+              <span className="text-[11px] font-semibold text-neutral-400 group-hover:text-[#85660c] transition-colors flex items-center gap-1">
+                Manage <span className="text-base leading-none translate-y-[0.5px]">→</span>
+              </span>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+    </section >
   );
 }

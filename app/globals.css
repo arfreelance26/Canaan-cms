@@ -1,26 +1,51 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: var(--font-dmsans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-cormorant), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
 :root {
-  --background: #ffffff;
+  --background: #f5f4f0;
   --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --gold: #c8a84b;
 }
 
 body {
-  background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--background);
+}
+
+.premium-panel {
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.03);
+}
+
+.btn-primary {
+  background: var(--foreground);
+  color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: var(--gold);
+}
+
+.text-gold {
+  color: var(--gold);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-cormorant), serif;
+}
+
+/* Subtle fade in for page loads */
+.animate-in {
+  animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

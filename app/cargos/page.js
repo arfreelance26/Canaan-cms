@@ -11,6 +11,7 @@ export default function CargosPage() {
   const [editingId, setEditingId] = useState(null);
   const [selectedImages, setSelectedImages] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => { fetchItems(); }, []);
 
@@ -21,6 +22,7 @@ export default function CargosPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSaving(true);
     let targetId = selectedCategoryId;
     try {
       if (editingId) {
@@ -45,9 +47,10 @@ export default function CargosPage() {
       const fileInput = document.getElementById("cargo-images-input");
       if (fileInput) fileInput.value = "";
       fetchItems();
-      window.location.reload();
-    } catch (error) {
+          } catch (error) {
       alert("An error occurred: " + (error.response?.data?.detail || error.message));
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -55,8 +58,7 @@ export default function CargosPage() {
     if (confirm("Delete this entire category and its images?")) {
       await api.delete(`/cargos/${id}`);
       fetchItems();
-      window.location.reload();
-    }
+          }
   };
 
   const handleEdit = (item) => {
@@ -69,8 +71,7 @@ export default function CargosPage() {
     if (confirm("Delete image?")) {
       await api.delete(`/cargos/images/${imageId}`);
       fetchItems();
-      window.location.reload();
-    }
+          }
   };
 
   const handleCancel = () => {
@@ -200,11 +201,21 @@ export default function CargosPage() {
             <div className="flex items-center gap-3 pt-2">
               <button
                 type="submit"
-                className="flex items-center gap-2 text-[12px] font-semibold px-5 py-2.5 rounded-full text-white transition-colors"
+                disabled={isSaving}
+                className={`flex items-center gap-2 text-[12px] font-semibold px-5 py-2.5 rounded-full text-white transition-colors ${isSaving ? "opacity-50 cursor-not-allowed" : ""}`}
                 style={{ background: "#85660c" }}
               >
-                <Check size={13} />
-                {editingId ? "Update" : "Save Category"}
+                {isSaving ? (
+                  <>
+                    <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Check size={13} />
+                    {editingId ? "Update" : "Save Category"}
+                  </>
+                )}
               </button>
               <button
                 type="button"

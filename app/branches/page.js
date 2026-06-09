@@ -10,6 +10,7 @@ export default function BranchesPage() {
   const [editingId, setEditingId] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => { fetchItems(); }, []);
 
@@ -20,7 +21,9 @@ export default function BranchesPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let savedItem;
+    setIsSaving(true);
+    try {
+      let savedItem;
     if (editingId) {
       const res = await api.put(`/branches/${editingId}`, formData);
       savedItem = res.data;
@@ -38,15 +41,16 @@ export default function BranchesPage() {
     setSelectedFile(null);
     setShowForm(false);
     fetchItems();
-    window.location.reload();
+        } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleDelete = async (id) => {
     if (confirm("Are you sure?")) {
       await api.delete(`/branches/${id}`);
       fetchItems();
-      window.location.reload();
-    }
+          }
   };
 
   const handleEdit = (item) => {
@@ -187,11 +191,21 @@ export default function BranchesPage() {
             <div className="flex items-center gap-3 pt-2">
               <button
                 type="submit"
-                className="flex items-center gap-2 text-[12px] font-semibold px-5 py-2.5 rounded-full text-white transition-colors"
+                disabled={isSaving}
+                className={`flex items-center gap-2 text-[12px] font-semibold px-5 py-2.5 rounded-full text-white transition-colors ${isSaving ? "opacity-50 cursor-not-allowed" : ""}`}
                 style={{ background: "#85660c" }}
               >
-                <Check size={13} />
-                {editingId ? "Update" : "Save Branch"}
+                {isSaving ? (
+                  <>
+                    <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Check size={13} />
+                    {editingId ? "Update" : "Save Branch"}
+                  </>
+                )}
               </button>
               <button
                 type="button"

@@ -11,6 +11,7 @@ export default function AuthGuard({ children }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   useEffect(() => {
     const token = sessionStorage.getItem("token");
@@ -22,6 +23,7 @@ export default function AuthGuard({ children }) {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setIsLoggingIn(true);
     try {
       const params = new URLSearchParams();
       params.append("username", username);
@@ -37,6 +39,8 @@ export default function AuthGuard({ children }) {
       setError("");
     } catch (err) {
       setError("Invalid username or password");
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -79,10 +83,18 @@ export default function AuthGuard({ children }) {
             {error && <p className="text-[11px] text-red-500 font-medium px-1">{error}</p>}
             <button
               type="submit"
-              className="w-full py-3 rounded-xl text-white text-sm font-semibold mt-2 transition-opacity hover:opacity-90"
+              disabled={isLoggingIn}
+              className={`w-full py-3 rounded-xl flex items-center justify-center gap-2 text-white text-sm font-semibold mt-2 transition-opacity ${isLoggingIn ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'}`}
               style={{ background: "#85660c" }}
             >
-              Sign In
+              {isLoggingIn ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Authenticating...
+                </>
+              ) : (
+                "Sign In"
+              )}
             </button>
           </form>
         </div>

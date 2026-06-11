@@ -5,6 +5,6 @@ python-multipart
 pydantic
 PyJWT
 passlib[bcrypt]
-bcrypt
+bcrypt<4.1
 python-dotenv
 slowapi

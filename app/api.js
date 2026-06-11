@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://api.popememorialhss.org',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://api.popememorialhss.org',
 });
 
 api.interceptors.request.use((config) => {

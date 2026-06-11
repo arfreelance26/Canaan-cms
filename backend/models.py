@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, LargeBinary, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, LargeBinary, ForeignKey, Date
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -33,6 +33,8 @@ class Circular(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
     description = Column(Text)
+    circular_name = Column(String, nullable=True)
+    date = Column(Date, nullable=True)
     pdf_blob = Column(LargeBinary)
 
 class TeamMember(Base):

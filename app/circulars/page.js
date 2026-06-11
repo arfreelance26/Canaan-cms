@@ -2,11 +2,20 @@
 
 import { useState, useEffect } from "react";
 import api from "../api";
-import { Plus, Trash2, Edit, X, Check, FileText, ExternalLink } from "lucide-react";
+import { Plus, Trash2, Edit, X, Check, FileText, ExternalLink, Calendar } from "lucide-react";
+
+function formatDate(dateStr) {
+  if (!dateStr) return null;
+  return new Date(dateStr + "T00:00:00").toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
 
 export default function CircularsPage() {
   const [items, setItems] = useState([]);
-  const [formData, setFormData] = useState({ title: "", description: "" });
+  const [formData, setFormData] = useState({ title: "", description: "", circular_name: "", date: "" });
   const [editingId, setEditingId] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -24,24 +33,24 @@ export default function CircularsPage() {
     setIsSaving(true);
     try {
       let savedItem;
-    if (editingId) {
-      const res = await api.put(`/circulars/${editingId}`, formData);
-      savedItem = res.data;
-    } else {
-      const res = await api.post("/circulars/", formData);
-      savedItem = res.data;
-    }
-    if (selectedFile) {
-      const fd = new FormData();
-      fd.append("file", selectedFile);
-      await api.post(`/circulars/${savedItem.id}/pdf`, fd);
-    }
-    setFormData({ title: "", description: "" });
-    setEditingId(null);
-    setSelectedFile(null);
-    setShowForm(false);
-    fetchItems();
-        } finally {
+      if (editingId) {
+        const res = await api.put(`/circulars/${editingId}`, formData);
+        savedItem = res.data;
+      } else {
+        const res = await api.post("/circulars/", formData);
+        savedItem = res.data;
+      }
+      if (selectedFile) {
+        const fd = new FormData();
+        fd.append("file", selectedFile);
+        await api.post(`/circulars/${savedItem.id}/pdf`, fd);
+      }
+      setFormData({ title: "", description: "", circular_name: "", date: "" });
+      setEditingId(null);
+      setSelectedFile(null);
+      setShowForm(false);
+      fetchItems();
+    } finally {
       setIsSaving(false);
     }
   };
@@ -50,18 +59,23 @@ export default function CircularsPage() {
     if (confirm("Are you sure?")) {
       await api.delete(`/circulars/${id}`);
       fetchItems();
-          }
+    }
   };
 
   const handleEdit = (item) => {
     setEditingId(item.id);
-    setFormData({ title: item.title, description: item.description });
+    setFormData({
+      title: item.title,
+      description: item.description,
+      circular_name: item.circular_name || "",
+      date: item.date || "",
+    });
     setShowForm(true);
   };
 
   const handleCancel = () => {
     setEditingId(null);
-    setFormData({ title: "", description: "" });
+    setFormData({ title: "", description: "", circular_name: "", date: "" });
     setSelectedFile(null);
     setShowForm(false);
   };
@@ -89,7 +103,7 @@ export default function CircularsPage() {
           </h1>
         </div>
         <button
-          onClick={() => { setShowForm(!showForm); setEditingId(null); setFormData({ title: "", description: "" }); }}
+          onClick={() => { setShowForm(!showForm); setEditingId(null); setFormData({ title: "", description: "", circular_name: "", date: "" }); }}
           className="flex items-center gap-2 text-[12px] font-semibold px-5 py-2.5 rounded-full transition-colors shrink-0"
           style={{ background: "#85660c", color: "#fff" }}
         >
@@ -121,6 +135,35 @@ export default function CircularsPage() {
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   className="bg-[#f5f4f0] rounded-xl px-4 py-3 text-sm font-medium text-neutral-900 placeholder:text-neutral-400 outline-none border border-transparent focus:border-neutral-300 transition-colors"
+                />
+              </div>
+
+              {/* Circular Name / Reference */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-medium tracking-[0.12em] uppercase text-neutral-400">
+                  Circular Name / Reference No.
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. CIR/2025/001"
+                  value={formData.circular_name}
+                  onChange={(e) => setFormData({ ...formData, circular_name: e.target.value })}
+                  className="bg-[#f5f4f0] rounded-xl px-4 py-3 text-sm font-medium text-neutral-900 placeholder:text-neutral-400 outline-none border border-transparent focus:border-neutral-300 transition-colors"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              {/* Date */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-medium tracking-[0.12em] uppercase text-neutral-400">
+                  Issue Date
+                </label>
+                <input
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                  className="bg-[#f5f4f0] rounded-xl px-4 py-3 text-sm font-medium text-neutral-900 outline-none border border-transparent focus:border-neutral-300 transition-colors"
                 />
               </div>
 
@@ -237,12 +280,11 @@ export default function CircularsPage() {
               {/* PDF preview banner */}
               {item.pdf_url ? (
                 <div className="h-48 overflow-hidden mt-10 mx-4 rounded-xl border border-neutral-200 relative bg-neutral-100">
-                  <iframe 
-                    src={`${item.pdf_url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`} 
-                    className="w-full h-[150%] -mt-8 pointer-events-none" 
+                  <iframe
+                    src={`${item.pdf_url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+                    className="w-full h-[150%] -mt-8 pointer-events-none"
                     title={item.title}
                   />
-                  {/* Invisible overlay to prevent iframe stealing clicks/scrolls */}
                   <div className="absolute inset-0 z-10" />
                 </div>
               ) : (
@@ -257,6 +299,25 @@ export default function CircularsPage() {
               {/* Body */}
               <div className="flex flex-col gap-3 p-5 flex-1">
                 <div className="w-6 h-0.5 rounded-full" style={{ background: "#85660c" }} />
+
+                {/* Circular name badge + date row */}
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  {item.circular_name && (
+                    <span
+                      className="text-[10px] font-semibold tracking-[0.1em] uppercase px-2.5 py-1 rounded-full"
+                      style={{ background: "rgba(133,102,12,0.08)", color: "#85660c" }}
+                    >
+                      {item.circular_name}
+                    </span>
+                  )}
+                  {item.date && (
+                    <span className="flex items-center gap-1 text-[10px] font-medium text-neutral-400">
+                      <Calendar size={10} />
+                      {formatDate(item.date)}
+                    </span>
+                  )}
+                </div>
+
                 <h3 className="text-base font-bold tracking-[-0.02em] text-neutral-900 leading-tight">
                   {item.title}
                 </h3>
@@ -267,22 +328,21 @@ export default function CircularsPage() {
 
               {/* Bottom — view PDF */}
               <div className="px-5 pb-5">
-<a
-                href={item.pdf_url}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-[11px] font-semibold tracking-[0.08em] uppercase transition-colors"
-                style={{ background: "rgba(133,102,12,0.08)", color: "#85660c" }}
+                <a
+                  href={item.pdf_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-[11px] font-semibold tracking-[0.08em] uppercase transition-colors"
+                  style={{ background: "rgba(133,102,12,0.08)", color: "#85660c" }}
                 >
-                View Document
-                <ExternalLink size={12} />
-              </a>
+                  View Document
+                  <ExternalLink size={12} />
+                </a>
+              </div>
             </div>
-            </div>
-      ))}
-    </div>
-  )
-}
-    </section >
+          ))}
+        </div>
+      )}
+    </section>
   );
 }

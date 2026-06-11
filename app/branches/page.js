@@ -2,7 +2,22 @@
 
 import { useState, useEffect } from "react";
 import api from "../api";
-import { Plus, Trash2, Edit, X, Check, MapPin, Map } from "lucide-react";
+import { Plus, Trash2, Edit, X, Check, MapPin } from "lucide-react";
+
+function SafeMapEmbed({ iframeHtml }) {
+  const match = iframeHtml?.match(/src=["']([^"']+)["']/);
+  if (!match) return null;
+  return (
+    <iframe
+      src={match[1]}
+      className="w-full h-32 mt-2 rounded-xl border border-neutral-200"
+      loading="lazy"
+      referrerPolicy="no-referrer"
+      sandbox="allow-scripts allow-same-origin"
+      title="Branch location map"
+    />
+  );
+}
 
 export default function BranchesPage() {
   const [items, setItems] = useState([]);
@@ -288,8 +303,7 @@ export default function BranchesPage() {
                 </div>
                 
                 {/* Embedded Map */}
-                <div className="w-full h-32 mt-2 rounded-xl overflow-hidden border border-neutral-200" dangerouslySetInnerHTML={{ __html: item.iframe_input }}>
-                </div>
+                <SafeMapEmbed iframeHtml={item.iframe_input} />
               </div>
             </div>
           ))}

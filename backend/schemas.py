@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ConfigDict, computed_field
 from typing import List, Optional
+from datetime import date as DateType
 import os
 from dotenv import load_dotenv
 
@@ -39,6 +40,8 @@ class Achievement(AchievementBase):
 class CircularBase(BaseModel):
     title: str
     description: str
+    circular_name: Optional[str] = None
+    date: Optional[DateType] = None
 
 class CircularCreate(CircularBase):
     pass

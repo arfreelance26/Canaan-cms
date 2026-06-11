@@ -40,14 +40,18 @@ def delete_branch(branch_id: int, db: Session = Depends(get_db), current_user: m
     return {"ok": True}
 
 @router.post("/{branch_id}/image")
-def upload_image(branch_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def upload_image(branch_id: int, file: UploadFile = File(...), db: Session = Depends(get_db), current_user: models.AdminUser = Depends(auth.get_current_user)):
     db_branch = db.query(models.Branch).filter(models.Branch.id == branch_id).first()
     if not db_branch:
         raise HTTPException(status_code=404, detail="Branch not found")
-    contents = file.file.read()
+    contents = await file.read()
+    if len(contents) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File too large. Maximum 5MB.")
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Invalid file type. Only images allowed.")
     db_branch.image_blob = contents
     db.commit()
-    return {"filename": file.filename}
+    return {"ok": True}
 
 @router.get("/{branch_id}/image")
 def get_image(branch_id: int, db: Session = Depends(get_db)):

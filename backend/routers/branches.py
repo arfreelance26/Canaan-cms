@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from database import get_db
 import auth
+from utils import compress_image
 import models, schemas
 
 router = APIRouter()
@@ -45,10 +46,11 @@ async def upload_image(branch_id: int, file: UploadFile = File(...), db: Session
     if not db_branch:
         raise HTTPException(status_code=404, detail="Branch not found")
     contents = await file.read()
-    if len(contents) > 5 * 1024 * 1024:
-        raise HTTPException(status_code=400, detail="File too large. Maximum 5MB.")
+    if len(contents) > 20 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File too large. Maximum 20MB.")
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Invalid file type. Only images allowed.")
+    contents = compress_image(contents)
     db_branch.image_blob = contents
     db.commit()
     return {"ok": True}

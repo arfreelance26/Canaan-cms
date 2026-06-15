@@ -8,7 +8,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from datetime import timedelta
 from database import engine, Base, get_db, SessionLocal
 import models, schemas, auth
-from routers import achievements, circulars, teams, cargos, services, licenses, branches
+from routers import achievements, circulars, teams, cargos, services, licenses, branches, exchange_rates, fleets, owner_images
 
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -28,6 +28,9 @@ limiter = Limiter(key_func=get_remote_address)
 _MIGRATIONS = [
     "ALTER TABLE circulars ADD COLUMN circular_name TEXT",
     "ALTER TABLE circulars ADD COLUMN date TEXT",
+    "ALTER TABLE team_members ADD COLUMN rank INTEGER DEFAULT 0",
+    "ALTER TABLE branches ADD COLUMN map_link TEXT",
+    "ALTER TABLE achievements ADD COLUMN image_blob BLOB",
 ]
 
 @asynccontextmanager
@@ -50,6 +53,10 @@ async def lifespan(app: FastAPI):
                 hashed_pw = auth.get_password_hash(ADMIN_PASSWORD)
                 db.add(models.AdminUser(username=ADMIN_USERNAME, hashed_password=hashed_pw))
                 db.commit()
+            else:
+                if not auth.verify_password(ADMIN_PASSWORD, admin.hashed_password):
+                    admin.hashed_password = auth.get_password_hash(ADMIN_PASSWORD)
+                    db.commit()
     finally:
         db.close()
 
@@ -111,6 +118,13 @@ def login_for_access_token(
                 db.commit()
             except Exception:
                 pass
+        else:
+            try:
+                if not auth.verify_password(ADMIN_PASSWORD, admin_check.hashed_password):
+                    admin_check.hashed_password = auth.get_password_hash(ADMIN_PASSWORD)
+                    db.commit()
+            except Exception:
+                pass
 
     user = db.query(models.AdminUser).filter(models.AdminUser.username == form_data.username).first()
     if not user or not auth.verify_password(form_data.password, user.hashed_password):
@@ -133,7 +147,9 @@ app.include_router(cargos.router, prefix="/api/cargos", tags=["Cargos"])
 app.include_router(services.router, prefix="/api/services", tags=["Services"])
 app.include_router(licenses.router, prefix="/api/licenses", tags=["Licenses"])
 app.include_router(branches.router, prefix="/api/branches", tags=["Branches"])
-
+app.include_router(exchange_rates.router, prefix="/api/exchange-rates", tags=["Exchange Rates"])
+app.include_router(fleets.router, prefix="/api/fleets", tags=["Fleets"])
+app.include_router(owner_images.router, prefix="/api/owner-image", tags=["Owner Image"])
 
 @app.get("/")
 def read_root():

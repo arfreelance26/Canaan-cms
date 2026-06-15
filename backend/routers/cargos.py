@@ -5,6 +5,7 @@ from typing import List
 import models, schemas
 from database import get_db
 import auth
+from utils import compress_image
 
 router = APIRouter()
 
@@ -49,10 +50,11 @@ async def upload_cargo_images(category_id: int, files: List[UploadFile] = File(.
     uploaded_images = []
     for file in files:
         contents = await file.read()
-        if len(contents) > 5 * 1024 * 1024:
-            raise HTTPException(status_code=400, detail="One of the files is too large. Maximum 5MB.")
+        if len(contents) > 20 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="One of the files is too large. Maximum 20MB.")
         if not file.content_type.startswith("image/"):
             raise HTTPException(status_code=400, detail="Invalid file type. Only images allowed.")
+        contents = compress_image(contents)
         db_image = models.CargoImage(category_id=category_id, image_blob=contents)
         db.add(db_image)
         uploaded_images.append(db_image)

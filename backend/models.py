@@ -15,17 +15,7 @@ class Achievement(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
     description = Column(Text)
-
-    images = relationship("AchievementImage", back_populates="achievement", cascade="all, delete-orphan")
-
-class AchievementImage(Base):
-    __tablename__ = "achievement_images"
-
-    id = Column(Integer, primary_key=True, index=True)
-    achievement_id = Column(Integer, ForeignKey("achievements.id", ondelete="CASCADE"))
     image_blob = Column(LargeBinary)
-
-    achievement = relationship("Achievement", back_populates="images")
 
 class Circular(Base):
     __tablename__ = "circulars"
@@ -45,6 +35,7 @@ class TeamMember(Base):
     designation = Column(String)
     email = Column(String, index=True)
     image_blob = Column(LargeBinary)
+    rank = Column(Integer, default=0)
 
 class CargoCategory(Base):
     __tablename__ = "cargo_categories"
@@ -85,5 +76,28 @@ class Branch(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
     address = Column(Text)
-    iframe_input = Column(Text)
+    map_link = Column(Text)
+    image_blob = Column(LargeBinary)
+
+class CustomsExchangeRate(Base):
+    __tablename__ = "customs_exchange_rates"
+
+    id = Column(Integer, primary_key=True, index=True)
+    usd = Column(String)
+    aed = Column(String)
+    gbp = Column(String)
+    eur = Column(String)
+
+class Fleet(Base):
+    __tablename__ = "fleets"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, index=True)
+    description = Column(Text)
+    image_blob = Column(LargeBinary)
+
+class OwnerImage(Base):
+    __tablename__ = "owner_images"
+
+    id = Column(Integer, primary_key=True, index=True)
     image_blob = Column(LargeBinary)

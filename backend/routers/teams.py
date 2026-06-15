@@ -4,12 +4,13 @@ from typing import List
 import models, schemas
 from database import get_db
 import auth
+from utils import compress_image
 
 router = APIRouter()
 
 @router.get("/", response_model=List[schemas.TeamMember])
 def read_teams(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return db.query(models.TeamMember).offset(skip).limit(limit).all()
+    return db.query(models.TeamMember).order_by(models.TeamMember.rank.asc()).offset(skip).limit(limit).all()
 
 @router.post("/", response_model=schemas.TeamMember)
 def create_team(team: schemas.TeamMemberCreate, db: Session = Depends(get_db), current_user: models.AdminUser = Depends(auth.get_current_user)):
@@ -45,10 +46,11 @@ async def upload_team_image(team_id: int, file: UploadFile = File(...), db: Sess
     if not db_team:
         raise HTTPException(status_code=404, detail="TeamMember not found")
     contents = await file.read()
-    if len(contents) > 5 * 1024 * 1024:
-        raise HTTPException(status_code=400, detail="File too large. Maximum 5MB.")
+    if len(contents) > 20 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File too large. Maximum 20MB.")
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Invalid file type. Only images allowed.")
+    contents = compress_image(contents)
     db_team.image_blob = contents
     db.commit()
     return {"ok": True}

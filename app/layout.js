@@ -4,7 +4,7 @@ import Link from "next/link";
 import {
   LayoutDashboard, Trophy, FileText,
   Users, Truck, Briefcase, FileBadge,
-  Anchor, MapPin,
+  Anchor, MapPin, DollarSign, Image as ImageIcon, Package
 } from "lucide-react";
 import Image from "next/image";
 import AuthGuard from "./AuthGuard";
@@ -23,9 +23,12 @@ const NAV_ITEMS = [
   { href: "/circulars", icon: FileText, label: "Circulars" },
   { href: "/teams", icon: Users, label: "Teams" },
   { href: "/branches", icon: MapPin, label: "Branches" },
-  { href: "/cargos", icon: Truck, label: "Cargos" },
+  { href: "/cargos", icon: Package, label: "Cargos" },
   { href: "/services", icon: Briefcase, label: "Services" },
   { href: "/licenses", icon: FileBadge, label: "Licenses" },
+  { href: "/exchange-rates", icon: DollarSign, label: "Exchange Rates" },
+  { href: "/fleets", icon: Truck, label: "Fleets" },
+  { href: "/owner-image", icon: ImageIcon, label: "Owner Image" },
 ];
 
 export default function RootLayout({ children }) {

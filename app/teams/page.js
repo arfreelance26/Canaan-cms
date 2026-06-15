@@ -6,7 +6,7 @@ import { Plus, Trash2, Edit, X, Check, Users, Mail } from "lucide-react";
 
 export default function TeamsPage() {
   const [items, setItems] = useState([]);
-  const [formData, setFormData] = useState({ name: "", designation: "", email: "" });
+  const [formData, setFormData] = useState({ name: "", designation: "", email: "", rank: 0 });
   const [editingId, setEditingId] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -36,7 +36,7 @@ export default function TeamsPage() {
       fd.append("file", selectedFile);
       await api.post(`/teams/${savedItem.id}/image`, fd);
     }
-    setFormData({ name: "", designation: "", email: "" });
+    setFormData({ name: "", designation: "", email: "", rank: 0 });
     setEditingId(null);
     setSelectedFile(null);
     setShowForm(false);
@@ -55,13 +55,13 @@ export default function TeamsPage() {
 
   const handleEdit = (item) => {
     setEditingId(item.id);
-    setFormData({ name: item.name, designation: item.designation, email: item.email });
+    setFormData({ name: item.name, designation: item.designation, email: item.email, rank: item.rank || 0 });
     setShowForm(true);
   };
 
   const handleCancel = () => {
     setEditingId(null);
-    setFormData({ name: "", designation: "", email: "" });
+    setFormData({ name: "", designation: "", email: "", rank: 0 });
     setSelectedFile(null);
     setShowForm(false);
   };
@@ -89,7 +89,7 @@ export default function TeamsPage() {
           </h1>
         </div>
         <button
-          onClick={() => { setShowForm(!showForm); setEditingId(null); setFormData({ name: "", designation: "", email: "" }); }}
+          onClick={() => { setShowForm(!showForm); setEditingId(null); setFormData({ name: "", designation: "", email: "", rank: 0 }); }}
           className="flex items-center gap-2 text-[12px] font-semibold px-5 py-2.5 rounded-full transition-colors shrink-0"
           style={{ background: "#85660c", color: "#fff" }}
         >
@@ -108,7 +108,7 @@ export default function TeamsPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="px-7 pt-14 pb-7 flex flex-col gap-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
 
               {/* Name */}
               <div className="flex flex-col gap-1.5">
@@ -151,6 +151,20 @@ export default function TeamsPage() {
                   placeholder="e.g. john@canaan.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="bg-[#f5f4f0] rounded-xl px-4 py-3 text-sm font-medium text-neutral-900 placeholder:text-neutral-400 outline-none border border-transparent focus:border-neutral-300 transition-colors"
+                />
+              </div>
+
+              {/* Rank */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-medium tracking-[0.12em] uppercase text-neutral-400">
+                  Rank
+                </label>
+                <input
+                  type="number"
+                  placeholder="e.g. 1"
+                  value={formData.rank}
+                  onChange={(e) => setFormData({ ...formData, rank: parseInt(e.target.value) || 0 })}
                   className="bg-[#f5f4f0] rounded-xl px-4 py-3 text-sm font-medium text-neutral-900 placeholder:text-neutral-400 outline-none border border-transparent focus:border-neutral-300 transition-colors"
                 />
               </div>

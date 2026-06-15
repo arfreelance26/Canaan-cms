@@ -6,24 +6,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-API_BASE_URL = os.getenv("API_BASE_URL", "https://api.popememorialhss.org")
+API_BASE_URL = os.getenv("API_BASE_URL", "https://api.canaanglobalinternational.com")
 
 class Token(BaseModel):
     access_token: str
     token_type: str
-
-class AchievementImageBase(BaseModel):
-    pass
-
-class AchievementImage(AchievementImageBase):
-    id: int
-    achievement_id: int
-    model_config = ConfigDict(from_attributes=True)
-    
-    @computed_field
-    @property
-    def image_url(self) -> str:
-        return f"{API_BASE_URL}/api/achievements/images/{self.id}/content"
 
 class AchievementBase(BaseModel):
     title: str
@@ -34,8 +21,12 @@ class AchievementCreate(AchievementBase):
 
 class Achievement(AchievementBase):
     id: int
-    images: List[AchievementImage] = []
     model_config = ConfigDict(from_attributes=True)
+
+    @computed_field
+    @property
+    def image_url(self) -> str:
+        return f"{API_BASE_URL}/api/achievements/{self.id}/image"
 
 class CircularBase(BaseModel):
     title: str
@@ -59,6 +50,7 @@ class TeamMemberBase(BaseModel):
     name: str
     designation: str
     email: str
+    rank: int = 0
 
 class TeamMemberCreate(TeamMemberBase):
     pass
@@ -131,7 +123,7 @@ class License(LicenseBase):
 class BranchBase(BaseModel):
     title: str
     address: str
-    iframe_input: str
+    map_link: str
 
 class BranchCreate(BranchBase):
     pass
@@ -144,3 +136,47 @@ class Branch(BranchBase):
     @property
     def image_url(self) -> str:
         return f"{API_BASE_URL}/api/branches/{self.id}/image"
+
+class CustomsExchangeRateBase(BaseModel):
+    usd: Optional[str] = None
+    aed: Optional[str] = None
+    gbp: Optional[str] = None
+    eur: Optional[str] = None
+
+class CustomsExchangeRateCreate(CustomsExchangeRateBase):
+    pass
+
+class CustomsExchangeRate(CustomsExchangeRateBase):
+    id: int
+    model_config = ConfigDict(from_attributes=True)
+
+class FleetBase(BaseModel):
+    title: str
+    description: str
+
+class FleetCreate(FleetBase):
+    pass
+
+class Fleet(FleetBase):
+    id: int
+    model_config = ConfigDict(from_attributes=True)
+    
+    @computed_field
+    @property
+    def image_url(self) -> str:
+        return f"{API_BASE_URL}/api/fleets/{self.id}/image"
+
+class OwnerImageBase(BaseModel):
+    pass
+
+class OwnerImageCreate(OwnerImageBase):
+    pass
+
+class OwnerImage(OwnerImageBase):
+    id: int
+    model_config = ConfigDict(from_attributes=True)
+    
+    @computed_field
+    @property
+    def image_url(self) -> str:
+        return f"{API_BASE_URL}/api/owner-image/content"

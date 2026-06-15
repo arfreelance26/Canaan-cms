@@ -2,26 +2,11 @@
 
 import { useState, useEffect } from "react";
 import api from "../api";
-import { Plus, Trash2, Edit, X, Check, MapPin } from "lucide-react";
+import { Plus, Trash2, Edit, X, Check, Truck } from "lucide-react";
 
-function SafeMapEmbed({ mapLink }) {
-  if (!mapLink) return null;
-  return (
-    <a
-      href={mapLink}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-flex items-center gap-2 mt-2 px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-600 rounded-lg text-[11px] font-medium transition-colors w-fit"
-    >
-      <MapPin size={12} />
-      View on Map
-    </a>
-  );
-}
-
-export default function BranchesPage() {
+export default function FleetsPage() {
   const [items, setItems] = useState([]);
-  const [formData, setFormData] = useState({ title: "", address: "", map_link: "" });
+  const [formData, setFormData] = useState({ title: "", description: "" });
   const [editingId, setEditingId] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -30,7 +15,7 @@ export default function BranchesPage() {
   useEffect(() => { fetchItems(); }, []);
 
   const fetchItems = async () => {
-    const res = await api.get("/branches/");
+    const res = await api.get("/fleets/");
     setItems(res.data);
   };
 
@@ -39,44 +24,44 @@ export default function BranchesPage() {
     setIsSaving(true);
     try {
       let savedItem;
-    if (editingId) {
-      const res = await api.put(`/branches/${editingId}`, formData);
-      savedItem = res.data;
-    } else {
-      const res = await api.post("/branches/", formData);
-      savedItem = res.data;
-    }
-    if (selectedFile) {
-      const fd = new FormData();
-      fd.append("file", selectedFile);
-      await api.post(`/branches/${savedItem.id}/image`, fd);
-    }
-    setFormData({ title: "", address: "", map_link: "" });
-    setEditingId(null);
-    setSelectedFile(null);
-    setShowForm(false);
-    fetchItems();
-        } finally {
+      if (editingId) {
+        const res = await api.put(`/fleets/${editingId}`, formData);
+        savedItem = res.data;
+      } else {
+        const res = await api.post("/fleets/", formData);
+        savedItem = res.data;
+      }
+      if (selectedFile) {
+        const fd = new FormData();
+        fd.append("file", selectedFile);
+        await api.post(`/fleets/${savedItem.id}/image`, fd);
+      }
+      setFormData({ title: "", description: "" });
+      setEditingId(null);
+      setSelectedFile(null);
+      setShowForm(false);
+      fetchItems();
+    } finally {
       setIsSaving(false);
     }
   };
 
   const handleDelete = async (id) => {
     if (confirm("Are you sure?")) {
-      await api.delete(`/branches/${id}`);
+      await api.delete(`/fleets/${id}`);
       fetchItems();
-          }
+    }
   };
 
   const handleEdit = (item) => {
     setEditingId(item.id);
-    setFormData({ title: item.title, address: item.address, map_link: item.map_link });
+    setFormData({ title: item.title, description: item.description });
     setShowForm(true);
   };
 
   const handleCancel = () => {
     setEditingId(null);
-    setFormData({ title: "", address: "", map_link: "" });
+    setFormData({ title: "", description: "" });
     setSelectedFile(null);
     setShowForm(false);
   };
@@ -88,28 +73,28 @@ export default function BranchesPage() {
       <div className="relative rounded-2xl overflow-hidden bg-white px-6 py-8 sm:px-10 sm:py-10 flex items-end justify-between">
         <div className="absolute top-0 left-0 bg-[#f5f4f0] px-5 py-3 rounded-br-2xl">
           <span className="text-[10px] font-medium tracking-[0.12em] uppercase text-neutral-400">
-            Locations
+            Vehicles
           </span>
         </div>
         <div className="absolute top-0 right-0 bg-[#f5f4f0] px-5 py-3 rounded-bl-2xl flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
           <span className="text-[11px] font-medium text-neutral-900 tracking-tight">
-            {items.length} branches
+            {items.length} fleet items
           </span>
         </div>
         <div className="mt-8">
           <h1 className="text-3xl sm:text-[2.6rem] font-bold tracking-[-0.03em] leading-[1.1]">
             Our
-             <span style={{ color: "#85660c" }} className="italic font-normal"> Branches</span>
+            <span style={{ color: "#85660c" }} className="italic font-normal"> Fleet</span>
           </h1>
         </div>
         <button
-          onClick={() => { setShowForm(!showForm); setEditingId(null); setFormData({ title: "", address: "", map_link: "" }); }}
+          onClick={() => { setShowForm(!showForm); setEditingId(null); setFormData({ title: "", description: "" }); }}
           className="flex items-center gap-2 text-[12px] font-semibold px-5 py-2.5 rounded-full transition-colors shrink-0"
           style={{ background: "#85660c", color: "#fff" }}
         >
           <Plus size={14} />
-          Add Branch
+          Add Vehicle
         </button>
       </div>
 
@@ -118,56 +103,39 @@ export default function BranchesPage() {
         <div className="relative rounded-2xl overflow-hidden bg-white">
           <div className="absolute top-0 left-0 bg-[#f5f4f0] px-5 py-3 rounded-br-2xl">
             <span className="text-[10px] font-medium tracking-[0.12em] uppercase text-neutral-400">
-              {editingId ? "Editing branch" : "New branch"}
+              {editingId ? "Editing vehicle" : "New vehicle"}
             </span>
           </div>
 
           <form onSubmit={handleSubmit} className="px-7 pt-14 pb-7 flex flex-col gap-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              
               {/* Title */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-medium tracking-[0.12em] uppercase text-neutral-400">
-                  Title
+                  Vehicle Name
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Dubai Headquarters"
+                  placeholder="e.g. Scania R500"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   className="bg-[#f5f4f0] rounded-xl px-4 py-3 text-sm font-medium text-neutral-900 placeholder:text-neutral-400 outline-none border border-transparent focus:border-neutral-300 transition-colors"
                 />
               </div>
 
-              {/* Address */}
+              {/* Description */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-medium tracking-[0.12em] uppercase text-neutral-400">
-                  Address
-                </label>
-                <textarea
-                  required
-                  rows={2}
-                  placeholder="Full physical address..."
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  className="bg-[#f5f4f0] rounded-xl px-4 py-3 text-sm font-medium text-neutral-900 placeholder:text-neutral-400 outline-none border border-transparent focus:border-neutral-300 transition-colors resize-none"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {/* Map Link */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-medium tracking-[0.12em] uppercase text-neutral-400">
-                  Google Maps Link
+                  Description
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder='https://maps.app.goo.gl/...'
-                  value={formData.map_link}
-                  onChange={(e) => setFormData({ ...formData, map_link: e.target.value })}
+                  placeholder="e.g. Heavy Duty Transport"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="bg-[#f5f4f0] rounded-xl px-4 py-3 text-sm font-medium text-neutral-900 placeholder:text-neutral-400 outline-none border border-transparent focus:border-neutral-300 transition-colors"
                 />
               </div>
@@ -175,7 +143,7 @@ export default function BranchesPage() {
               {/* Image upload */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-medium tracking-[0.12em] uppercase text-neutral-400">
-                  Branch Image
+                  Vehicle Image
                 </label>
                 {!selectedFile ? (
                   <label className="bg-[#f5f4f0] rounded-xl px-4 py-3 text-sm text-neutral-400 cursor-pointer border border-dashed border-neutral-300 hover:border-neutral-400 transition-colors flex items-center gap-2">
@@ -218,7 +186,7 @@ export default function BranchesPage() {
                 ) : (
                   <>
                     <Check size={13} />
-                    {editingId ? "Update" : "Save Branch"}
+                    {editingId ? "Update" : "Save Vehicle"}
                   </>
                 )}
               </button>
@@ -238,15 +206,14 @@ export default function BranchesPage() {
       {/* ── GRID ── */}
       {items.length === 0 ? (
         <div className="rounded-2xl bg-white flex flex-col items-center justify-center py-20 gap-3">
-          <MapPin size={28} className="text-neutral-200" />
-          <p className="text-[10px] font-medium tracking-[0.12em] uppercase text-neutral-300">No branches yet</p>
-          <p className="text-sm text-neutral-400">Add your first branch location above</p>
+          <Truck size={28} className="text-neutral-200" />
+          <p className="text-[10px] font-medium tracking-[0.12em] uppercase text-neutral-300">No vehicles yet</p>
+          <p className="text-sm text-neutral-400">Add your first vehicle above</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {items.map((item, i) => (
             <div key={item.id} className="relative rounded-2xl overflow-hidden bg-white flex flex-col group">
-
               {/* Corner index */}
               <div className="absolute top-0 left-0 bg-[#f5f4f0] px-4 py-2.5 rounded-br-2xl z-10">
                 <span className="text-[10px] font-medium tracking-[0.12em] uppercase text-neutral-400">
@@ -270,40 +237,29 @@ export default function BranchesPage() {
                 </button>
               </div>
 
-              {/* Branch image */}
+              {/* Photo */}
               {item.image_url ? (
                 <div className="relative h-48 overflow-hidden bg-neutral-100">
                   <img
                     src={item.image_url}
                     alt={item.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    onError={(e) => { e.target.parentElement.style.display = "none"; }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute bottom-4 left-4 right-4 text-white">
-                     <h3 className="text-xl font-bold tracking-tight leading-tight">{item.title}</h3>
-                  </div>
                 </div>
               ) : (
-                <div
-                  className="h-48 flex flex-col items-start justify-end p-4"
-                  style={{ background: "rgba(133,102,12,0.06)", borderBottom: "1px solid rgba(133,102,12,0.2)" }}
-                >
-                  <h3 className="text-xl font-bold tracking-tight leading-tight text-neutral-900">{item.title}</h3>
+                <div className="h-48 flex items-center justify-center bg-neutral-50">
+                  <Truck size={32} className="text-neutral-300" />
                 </div>
               )}
 
               {/* Body */}
-              <div className="flex flex-col gap-3 p-5 flex-1">
-                <div className="flex items-start gap-2">
-                    <MapPin size={14} className="text-neutral-400 shrink-0 mt-0.5" />
-                    <p className="text-sm text-neutral-500 leading-relaxed flex-1">
-                        {item.address}
-                    </p>
-                </div>
-                
-                {/* Map Link */}
-                <SafeMapEmbed mapLink={item.map_link} />
+              <div className="flex flex-col gap-2 p-5 flex-1 border-t border-neutral-100">
+                <h3 className="text-base font-bold tracking-[-0.02em] text-neutral-900 leading-tight">
+                  {item.title}
+                </h3>
+                <p className="text-[13px] text-neutral-500 leading-relaxed line-clamp-2">
+                  {item.description}
+                </p>
               </div>
             </div>
           ))}

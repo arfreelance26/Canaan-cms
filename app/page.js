@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import api from "./api";
 import {
-  Trophy, FileText, ShieldCheck, Layers, Users, Package, MapPin
+  Trophy, FileText, ShieldCheck, Layers, Users, Package, MapPin, DollarSign, Truck, Image as ImageIcon
 } from "lucide-react";
 import Link from "next/link";
 
@@ -15,6 +15,9 @@ const CARDS = [
   { label: "Team Members", endpoint: "/teams/", icon: Users, suffix: "people" },
   { label: "Branches", endpoint: "/branches/", icon: MapPin, suffix: "locations" },
   { label: "Cargo Categories", endpoint: "/cargos/", icon: Package, suffix: "categories" },
+  { label: "Exchange Rates", endpoint: "/exchange-rates/", icon: DollarSign, suffix: "rates" },
+  { label: "Fleets", endpoint: "/fleets/", icon: Truck, suffix: "vehicles" },
+  { label: "Owner Image", endpoint: "/owner-image/", icon: ImageIcon, suffix: "profile" },
 ];
 
 export default function Home() {
@@ -24,7 +27,7 @@ export default function Home() {
     CARDS.forEach(async ({ label, endpoint }) => {
       try {
         const res = await api.get(endpoint);
-        setCounts((prev) => ({ ...prev, [label]: res.data.length }));
+        setCounts((prev) => ({ ...prev, [label]: Array.isArray(res.data) ? res.data.length : 1 }));
       } catch {
         setCounts((prev) => ({ ...prev, [label]: "—" }));
       }

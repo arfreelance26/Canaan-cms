@@ -4,6 +4,7 @@ from typing import List
 import models, schemas
 from database import get_db
 import auth
+from utils import compress_image
 
 router = APIRouter()
 
@@ -45,10 +46,11 @@ async def upload_license_image(license_id: int, file: UploadFile = File(...), db
     if not db_license:
         raise HTTPException(status_code=404, detail="License not found")
     contents = await file.read()
-    if len(contents) > 5 * 1024 * 1024:
-        raise HTTPException(status_code=400, detail="File too large. Maximum 5MB.")
+    if len(contents) > 20 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File too large. Maximum 20MB.")
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Invalid file type. Only images allowed.")
+    contents = compress_image(contents)
     db_license.image_blob = contents
     db.commit()
     return {"ok": True}

@@ -8,7 +8,7 @@ export default function AchievementsPage() {
   const [items, setItems] = useState([]);
   const [formData, setFormData] = useState({ title: "", description: "" });
   const [editingId, setEditingId] = useState(null);
-  const [selectedImages, setSelectedImages] = useState([]);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -31,16 +31,14 @@ export default function AchievementsPage() {
       const res = await api.post("/achievements/", formData);
       savedItem = res.data;
     }
-    if (selectedImages.length > 0) {
+    if (selectedFile) {
       const fd = new FormData();
-      for (let img of selectedImages) {
-        fd.append("files", img);
-      }
-      await api.post(`/achievements/${savedItem.id}/images`, fd);
+      fd.append("file", selectedFile);
+      await api.post(`/achievements/${savedItem.id}/image`, fd);
     }
     setFormData({ title: "", description: "" });
     setEditingId(null);
-    setSelectedImages([]);
+    setSelectedFile(null);
     setShowForm(false);
     fetchItems();
         } finally {
@@ -61,17 +59,12 @@ export default function AchievementsPage() {
     setShowForm(true);
   };
 
-  const handleDeleteImage = async (imageId) => {
-    if (confirm("Delete image?")) {
-      await api.delete(`/achievements/images/${imageId}`);
-      fetchItems();
-          }
-  };
+
 
   const handleCancel = () => {
     setEditingId(null);
     setFormData({ title: "", description: "" });
-    setSelectedImages([]);
+    setSelectedFile(null);
     setShowForm(false);
   };
 
@@ -143,29 +136,28 @@ export default function AchievementsPage() {
               {/* Images */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-medium tracking-[0.12em] uppercase text-neutral-400">
-                  Images
+                  Image
                 </label>
-                <label className="bg-[#f5f4f0] rounded-xl px-4 py-3 text-sm text-neutral-400 cursor-pointer border border-dashed border-neutral-300 hover:border-neutral-400 transition-colors flex items-center gap-2">
-                  <Plus size={13} className="text-neutral-400" />
-                  Choose images
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => setSelectedImages(Array.from(e.target.files))}
-                  />
-                </label>
-                {selectedImages.length > 0 && (
-                  <div className="flex gap-2 overflow-x-auto py-2">
-                    {selectedImages.map((file, i) => (
-                      <div key={i} className="relative w-16 h-16 shrink-0 rounded-lg overflow-hidden border border-neutral-200">
-                        <img src={URL.createObjectURL(file)} alt="Preview" className="w-full h-full object-cover" />
-                        <button type="button" onClick={() => setSelectedImages(prev => prev.filter((_, idx) => idx !== i))} className="absolute top-1 right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-                          <X size={8} className="text-white" />
-                        </button>
-                      </div>
-                    ))}
+                {!selectedFile ? (
+                  <label className="bg-[#f5f4f0] rounded-xl px-4 py-3 text-sm text-neutral-400 cursor-pointer border border-dashed border-neutral-300 hover:border-neutral-400 transition-colors flex items-center gap-2">
+                    <Plus size={13} className="text-neutral-400 shrink-0" />
+                    Choose image
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => setSelectedFile(e.target.files[0])}
+                    />
+                  </label>
+                ) : (
+                  <div className="relative w-full h-16 rounded-xl overflow-hidden border border-neutral-200">
+                    <img src={URL.createObjectURL(selectedFile)} alt="Preview" className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-between px-3">
+                      <span className="text-[10px] font-medium text-white truncate max-w-[80%]">{selectedFile.name}</span>
+                      <button type="button" onClick={() => setSelectedFile(null)} className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
+                        <X size={10} className="text-white" />
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -255,39 +247,19 @@ export default function AchievementsPage() {
                 </button>
               </div>
 
-              {/* Images */}
-              {item.images && item.images.length > 0 && (
-                <div className="relative h-44 overflow-hidden">
+              {/* Image */}
+              {item.image_url ? (
+                <div className="relative h-44 overflow-hidden bg-neutral-100">
                   <img
-                    src={item.images[0].image_url}
+                    src={item.image_url}
                     alt={item.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onError={(e) => { e.target.parentElement.style.display = "none"; }}
                   />
                   <div className="absolute inset-0 bg-black/10" />
-                  {item.images.length > 1 && (
-                    <div className="absolute bottom-0 right-0 bg-[#f5f4f0] px-3 py-1.5 rounded-tl-2xl">
-                      <span className="text-[10px] font-medium text-neutral-500">
-                        +{item.images.length - 1} more
-                      </span>
-                    </div>
-                  )}
-                  {/* Delete extra images on hover */}
-                  {item.images.length > 1 && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 p-2 overflow-x-auto">
-                      {item.images.slice(1).map(img => (
-                        <div key={img.id} className="relative shrink-0">
-                          <img src={img.image_url} className="w-10 h-10 object-cover rounded-lg" alt="" />
-                          <button
-                            onClick={() => handleDeleteImage(img.id)}
-                            className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center"
-                          >
-                            <X size={8} className="text-white" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
+              ) : (
+                <div className="h-44 bg-[#f5f4f0]" />
               )}
 
               {/* Body */}
@@ -304,17 +276,7 @@ export default function AchievementsPage() {
                 </p>
               </div>
 
-              {/* Bottom strip — delete first image */}
-              {item.images && item.images.length > 0 && (
-                <div className="px-5 pb-4">
-                  <button
-                    onClick={() => handleDeleteImage(item.images[0].id)}
-                    className="text-[10px] font-medium tracking-[0.08em] uppercase text-neutral-300 hover:text-red-400 transition-colors flex items-center gap-1"
-                  >
-                    <Trash2 size={10} /> Remove cover
-                  </button>
-                </div>
-              )}
+
             </div>
           ))}
         </div>

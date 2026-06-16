@@ -130,7 +130,7 @@ export default function CargosPage() {
               {!editingId && (
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-medium tracking-[0.12em] uppercase text-neutral-400">
-                    Target
+                    Target Cargo
                   </label>
                   <div className="relative">
                     <select

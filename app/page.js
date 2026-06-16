@@ -66,7 +66,7 @@ export default function Home() {
         {CARDS.map(({ label, endpoint, icon: Icon, suffix }, i) => (
           <Link
             key={label}
-            href={`/${label.toLowerCase().replace(" ", "-")}`}
+            href={endpoint}
             className="group relative rounded-2xl bg-white border border-black/5 hover:border-[#85660c]/30 overflow-hidden flex flex-col p-6 transition-all duration-300 hover:shadow-xl hover:shadow-[#85660c]/5 hover:-translate-y-1"
           >
             {/* Top section */}

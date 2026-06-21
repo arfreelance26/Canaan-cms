@@ -27,12 +27,13 @@ export default function BranchesPage() {
   const [showForm, setShowForm] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  useEffect(() => { fetchItems(); }, []);
-
   const fetchItems = async () => {
     const res = await api.get("/branches/");
     setItems(res.data);
   };
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- setState happens after an await inside fetchItems, not synchronously in the effect body
+  useEffect(() => { fetchItems(); }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

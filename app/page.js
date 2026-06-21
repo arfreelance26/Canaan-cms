@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import api from "./api";
 import {
-  Trophy, FileText, ShieldCheck, Layers, Users, Package, MapPin, DollarSign, Truck, Image as ImageIcon
+  Trophy, FileText, ShieldCheck, Layers, Users, Package, MapPin, DollarSign, Truck, Image as ImageIcon, Video as VideoIcon
 } from "lucide-react";
 import Link from "next/link";
 
@@ -18,6 +18,7 @@ const CARDS = [
   { label: "Exchange Rates", endpoint: "/exchange-rates/", icon: DollarSign, suffix: "rates" },
   { label: "Fleets", endpoint: "/fleets/", icon: Truck, suffix: "vehicles" },
   { label: "Owner Image", endpoint: "/owner-image/", icon: ImageIcon, suffix: "profile" },
+  { label: "Hero Video", endpoint: "/hero-video/", icon: VideoIcon, suffix: "promo video" },
 ];
 
 export default function Home() {

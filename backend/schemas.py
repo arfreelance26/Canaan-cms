@@ -175,8 +175,23 @@ class OwnerImageCreate(OwnerImageBase):
 class OwnerImage(OwnerImageBase):
     id: int
     model_config = ConfigDict(from_attributes=True)
-    
+
     @computed_field
     @property
     def image_url(self) -> str:
         return f"{API_BASE_URL}/api/owner-image/content"
+
+class HeroVideoBase(BaseModel):
+    pass
+
+class HeroVideoCreate(HeroVideoBase):
+    pass
+
+class HeroVideo(HeroVideoBase):
+    id: int
+    model_config = ConfigDict(from_attributes=True)
+
+    @computed_field
+    @property
+    def video_url(self) -> str:
+        return f"{API_BASE_URL}/api/hero-video/content"

@@ -8,6 +8,9 @@ const nextConfig = {
   output: 'export',
   trailingSlash: true,
   devIndicators: false,
+  images: {
+    unoptimized: true,
+  },
   turbopack: {
     root: __dirname,
   },

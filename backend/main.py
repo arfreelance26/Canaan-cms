@@ -8,7 +8,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from datetime import timedelta
 from database import engine, Base, get_db, SessionLocal
 import models, schemas, auth
-from routers import achievements, circulars, teams, cargos, services, licenses, branches, exchange_rates, fleets, owner_images
+from routers import achievements, circulars, teams, cargos, services, licenses, branches, exchange_rates, fleets, owner_images, hero_video
 
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -150,6 +150,7 @@ app.include_router(branches.router, prefix="/api/branches", tags=["Branches"])
 app.include_router(exchange_rates.router, prefix="/api/exchange-rates", tags=["Exchange Rates"])
 app.include_router(fleets.router, prefix="/api/fleets", tags=["Fleets"])
 app.include_router(owner_images.router, prefix="/api/owner-image", tags=["Owner Image"])
+app.include_router(hero_video.router, prefix="/api/hero-video", tags=["Hero Video"])
 
 @app.get("/")
 def read_root():

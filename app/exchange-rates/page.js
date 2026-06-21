@@ -8,8 +8,6 @@ export default function ExchangeRatesPage() {
   const [formData, setFormData] = useState({ usd: "", aed: "", gbp: "", eur: "" });
   const [isSaving, setIsSaving] = useState(false);
 
-  useEffect(() => { fetchItems(); }, []);
-
   const fetchItems = async () => {
     const res = await api.get("/exchange-rates/");
     setFormData({
@@ -19,6 +17,9 @@ export default function ExchangeRatesPage() {
       eur: res.data.eur || ""
     });
   };
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- setState happens after an await inside fetchItems, not synchronously in the effect body
+  useEffect(() => { fetchItems(); }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

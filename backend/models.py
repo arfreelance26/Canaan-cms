@@ -101,3 +101,9 @@ class OwnerImage(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     image_blob = Column(LargeBinary)
+
+class HeroVideo(Base):
+    __tablename__ = "hero_videos"
+
+    id = Column(Integer, primary_key=True, index=True)
+    video_blob = Column(LargeBinary)

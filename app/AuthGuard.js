@@ -16,6 +16,7 @@ export default function AuthGuard({ children }) {
   useEffect(() => {
     const token = sessionStorage.getItem("token");
     if (token) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time read of a browser-only API on mount; can't move to a state initializer since sessionStorage doesn't exist during static-export prerendering
       setIsAuthenticated(true);
     }
     setLoading(false);

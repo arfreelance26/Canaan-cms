@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import api from "./api";
 import {
-  Trophy, FileText, ShieldCheck, Layers, Users, Package, MapPin, DollarSign, Truck, Image as ImageIcon, Video as VideoIcon
+  Trophy, FileText, ShieldCheck, Layers, Users, Package, MapPin, DollarSign, Truck, Image as ImageIcon, Video as VideoIcon, Mail
 } from "lucide-react";
 import Link from "next/link";
 
@@ -19,6 +19,7 @@ const CARDS = [
   { label: "Fleets", endpoint: "/fleets/", icon: Truck, suffix: "vehicles" },
   { label: "Owner Image", endpoint: "/owner-image/", icon: ImageIcon, suffix: "profile" },
   { label: "Hero Video", endpoint: "/hero-video/", icon: VideoIcon, suffix: "promo video" },
+  { label: "Messages", endpoint: "/contact/", href: "/messages", icon: Mail, suffix: "inquiries" },
 ];
 
 export default function Home() {
@@ -64,10 +65,10 @@ export default function Home() {
 
       {/* ── COMBINED MODULES GRID ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-        {CARDS.map(({ label, endpoint, icon: Icon, suffix }, i) => (
+        {CARDS.map(({ label, endpoint, href, icon: Icon, suffix }, i) => (
           <Link
             key={label}
-            href={endpoint}
+            href={href || endpoint}
             className="group relative rounded-2xl bg-white border border-black/5 hover:border-[#85660c]/30 overflow-hidden flex flex-col p-6 transition-all duration-300 hover:shadow-xl hover:shadow-[#85660c]/5 hover:-translate-y-1"
           >
             {/* Top section */}

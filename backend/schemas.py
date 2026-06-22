@@ -1,6 +1,6 @@
-from pydantic import BaseModel, ConfigDict, computed_field
+from pydantic import BaseModel, ConfigDict, computed_field, field_validator
 from typing import List, Optional
-from datetime import date as DateType
+from datetime import date as DateType, datetime, timezone
 import os
 from dotenv import load_dotenv
 
@@ -11,6 +11,14 @@ API_BASE_URL = os.getenv("API_BASE_URL", "https://api.canaanglobalinternational.
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+class CredentialsUpdate(BaseModel):
+    current_password: str
+    new_username: Optional[str] = None
+    new_password: Optional[str] = None
+
+class BulkDeleteRequest(BaseModel):
+    ids: List[int]
 
 class AchievementBase(BaseModel):
     title: str
@@ -195,3 +203,39 @@ class HeroVideo(HeroVideoBase):
     @property
     def video_url(self) -> str:
         return f"{API_BASE_URL}/api/hero-video/content"
+
+class ContactMessageBase(BaseModel):
+    inquiry_type: str
+    name: str
+    email: str
+    phone: Optional[str] = None
+    message: Optional[str] = None
+    company_name: Optional[str] = None
+    shipping_mode: Optional[str] = None
+    port_of_loading: Optional[str] = None
+    port_of_discharge: Optional[str] = None
+    container_type: Optional[str] = None
+    weight: Optional[str] = None
+    factory_location: Optional[str] = None
+    transport_export_import: Optional[str] = None
+    pickup_location: Optional[str] = None
+    delivery_location: Optional[str] = None
+    transport_cargo_type: Optional[str] = None
+    quantity: Optional[str] = None
+    rfid_org_name: Optional[str] = None
+
+class ContactMessageCreate(ContactMessageBase):
+    pass
+
+class ContactMessage(ContactMessageBase):
+    id: int
+    is_read: bool
+    created_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+    @field_validator("created_at")
+    @classmethod
+    def ensure_utc(cls, v: datetime) -> datetime:
+        # Stored as a naive UTC timestamp; attach tzinfo so JSON serialization
+        # includes an explicit offset, otherwise browsers misread it as local time.
+        return v if v.tzinfo else v.replace(tzinfo=timezone.utc)

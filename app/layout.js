@@ -5,11 +5,13 @@ import {
   LayoutDashboard, Trophy, FileText,
   Users, Truck, Briefcase, FileBadge,
   Anchor, MapPin, DollarSign, Image as ImageIcon, Package,
-  Video as VideoIcon
+  Video as VideoIcon, Mail, Settings as SettingsIcon
 } from "lucide-react";
 import Image from "next/image";
 import AuthGuard from "./AuthGuard";
 import LogoutButton from "./LogoutButton";
+import UserBadge from "./UserBadge";
+import UnreadMessagesBadge from "./UnreadMessagesBadge";
 
 const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 
@@ -31,6 +33,8 @@ const NAV_ITEMS = [
   { href: "/fleets", icon: Truck, label: "Fleets" },
   { href: "/owner-image", icon: ImageIcon, label: "Owner Image" },
   { href: "/hero-video", icon: VideoIcon, label: "Hero Video" },
+  { href: "/messages", icon: Mail, label: "Messages", badge: UnreadMessagesBadge },
+  { href: "/settings", icon: SettingsIcon, label: "Settings" },
 ];
 
 export default function RootLayout({ children }) {
@@ -59,22 +63,14 @@ export default function RootLayout({ children }) {
             </div>
 
             <nav className="flex flex-col gap-1 px-3 pt-10 pb-3 flex-1">
-              {NAV_ITEMS.map(({ href, icon: Icon, label }) => (
-                <NavItem key={href} href={href} icon={<Icon size={14} strokeWidth={1.8} />} label={label} />
+              {NAV_ITEMS.map(({ href, icon: Icon, label, badge: Badge }) => (
+                <NavItem key={href} href={href} icon={<Icon size={14} strokeWidth={1.8} />} label={label} badge={Badge && <Badge />} />
               ))}
             </nav>
 
             {/* BOTTOM — user strip */}
             <div className="border-t border-black/[0.07] px-3 py-3 flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-full bg-neutral-900 flex items-center justify-center shrink-0">
-                <span className="text-[11px] font-bold text-white">A</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-semibold text-neutral-900 tracking-tight leading-none truncate">
-                  Arun Samuel Alfred
-                </p>
-                <p className="text-[9px] text-neutral-400 tracking-tight mt-0.5">Admin</p>
-              </div>
+              <UserBadge />
               <LogoutButton />
             </div>
           </div>
@@ -95,7 +91,7 @@ export default function RootLayout({ children }) {
   );
 }
 
-function NavItem({ href, icon, label }) {
+function NavItem({ href, icon, label, badge }) {
   return (
     <Link
       href={href}
@@ -110,6 +106,7 @@ function NavItem({ href, icon, label }) {
       <span className="text-[12.5px] font-medium tracking-tight transition-colors duration-200 group-hover:text-neutral-900">
         {label}
       </span>
+      {badge}
     </Link>
   );
 }

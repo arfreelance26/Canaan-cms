@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Text, LargeBinary, ForeignKey, Date
+from sqlalchemy import Column, Integer, String, Text, LargeBinary, ForeignKey, Date, DateTime, Boolean
 from sqlalchemy.orm import relationship
+from datetime import datetime
 from database import Base
 
 class AdminUser(Base):
@@ -107,3 +108,35 @@ class HeroVideo(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     video_blob = Column(LargeBinary)
+
+class ContactMessage(Base):
+    __tablename__ = "contact_messages"
+
+    id = Column(Integer, primary_key=True, index=True)
+    inquiry_type = Column(String, index=True)
+    name = Column(String)
+    email = Column(String, index=True)
+    phone = Column(String, nullable=True)
+    message = Column(Text, nullable=True)
+
+    # Shipping
+    company_name = Column(String, nullable=True)
+    shipping_mode = Column(String, nullable=True)
+    port_of_loading = Column(String, nullable=True)
+    port_of_discharge = Column(String, nullable=True)
+    container_type = Column(String, nullable=True)
+    weight = Column(String, nullable=True)
+    factory_location = Column(String, nullable=True)
+
+    # Transportation
+    transport_export_import = Column(String, nullable=True)
+    pickup_location = Column(String, nullable=True)
+    delivery_location = Column(String, nullable=True)
+    transport_cargo_type = Column(String, nullable=True)
+
+    # RFID Seals
+    quantity = Column(String, nullable=True)
+    rfid_org_name = Column(String, nullable=True)
+
+    is_read = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)

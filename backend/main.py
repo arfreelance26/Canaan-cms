@@ -45,13 +45,23 @@ async def lifespan(app: FastAPI):
 
     db = SessionLocal()
     try:
-        # Only bootstrap an admin from env vars if none exists yet. Once an admin
-        # row exists, leave it alone — otherwise a user-changed username/password
-        # would get silently reset back to the env defaults on every restart.
-        if ADMIN_USERNAME and ADMIN_PASSWORD and not db.query(models.AdminUser).first():
-            hashed_pw = auth.get_password_hash(ADMIN_PASSWORD)
-            db.add(models.AdminUser(username=ADMIN_USERNAME, hashed_password=hashed_pw))
-            db.commit()
+        # .env is the sole source of truth for admin credentials — always keep
+        # the stored admin in sync with it. No user-facing way to change credentials.
+        if ADMIN_USERNAME and ADMIN_PASSWORD:
+            admin = db.query(models.AdminUser).first()
+            if not admin:
+                db.add(models.AdminUser(username=ADMIN_USERNAME, hashed_password=auth.get_password_hash(ADMIN_PASSWORD)))
+                db.commit()
+            else:
+                changed = False
+                if admin.username != ADMIN_USERNAME:
+                    admin.username = ADMIN_USERNAME
+                    changed = True
+                if not auth.verify_password(ADMIN_PASSWORD, admin.hashed_password):
+                    admin.hashed_password = auth.get_password_hash(ADMIN_PASSWORD)
+                    changed = True
+                if changed:
+                    db.commit()
     finally:
         db.close()
 
@@ -103,13 +113,24 @@ def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
 ):
-    # Fallback seed for environments where lifespan is bypassed (e.g. Phusion Passenger).
-    # Only runs if no admin exists yet — never overwrites a user-changed username/password.
-    if ADMIN_USERNAME and ADMIN_PASSWORD and not db.query(models.AdminUser).first():
+    # Fallback seed/sync for environments where lifespan is bypassed (e.g. Phusion Passenger).
+    # .env is the sole source of truth — always keep the stored admin in sync with it.
+    if ADMIN_USERNAME and ADMIN_PASSWORD:
         try:
-            hashed_pw = auth.get_password_hash(ADMIN_PASSWORD)
-            db.add(models.AdminUser(username=ADMIN_USERNAME, hashed_password=hashed_pw))
-            db.commit()
+            admin_check = db.query(models.AdminUser).first()
+            if not admin_check:
+                db.add(models.AdminUser(username=ADMIN_USERNAME, hashed_password=auth.get_password_hash(ADMIN_PASSWORD)))
+                db.commit()
+            else:
+                changed = False
+                if admin_check.username != ADMIN_USERNAME:
+                    admin_check.username = ADMIN_USERNAME
+                    changed = True
+                if not auth.verify_password(ADMIN_PASSWORD, admin_check.hashed_password):
+                    admin_check.hashed_password = auth.get_password_hash(ADMIN_PASSWORD)
+                    changed = True
+                if changed:
+                    db.commit()
         except Exception:
             pass
 
@@ -130,33 +151,6 @@ def login_for_access_token(
 @app.get("/api/auth/me", tags=["Auth"])
 def get_current_admin(current_user: models.AdminUser = Depends(auth.get_current_user)):
     return {"username": current_user.username}
-
-
-@app.put("/api/auth/credentials", response_model=schemas.Token, tags=["Auth"])
-def update_credentials(
-    payload: schemas.CredentialsUpdate,
-    db: Session = Depends(get_db),
-    current_user: models.AdminUser = Depends(auth.get_current_user),
-):
-    if not auth.verify_password(payload.current_password, current_user.hashed_password):
-        raise HTTPException(status_code=400, detail="Current password is incorrect")
-
-    if payload.new_username and payload.new_username != current_user.username:
-        existing = db.query(models.AdminUser).filter(models.AdminUser.username == payload.new_username).first()
-        if existing:
-            raise HTTPException(status_code=400, detail="That username is already taken")
-        current_user.username = payload.new_username
-
-    if payload.new_password:
-        current_user.hashed_password = auth.get_password_hash(payload.new_password)
-
-    db.commit()
-
-    access_token_expires = timedelta(minutes=auth.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = auth.create_access_token(
-        data={"sub": current_user.username}, expires_delta=access_token_expires
-    )
-    return {"access_token": access_token, "token_type": "bearer"}
 
 
 app.include_router(achievements.router, prefix="/api/achievements", tags=["Achievements"])

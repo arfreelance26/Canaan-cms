@@ -12,11 +12,6 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
-class CredentialsUpdate(BaseModel):
-    current_password: str
-    new_username: Optional[str] = None
-    new_password: Optional[str] = None
-
 class BulkDeleteRequest(BaseModel):
     ids: List[int]
 

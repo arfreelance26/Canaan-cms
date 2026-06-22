@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Trophy, FileText,
   Users, Truck, Briefcase, FileBadge,
   Anchor, MapPin, DollarSign, Image as ImageIcon, Package,
-  Video as VideoIcon, Mail, Settings as SettingsIcon
+  Video as VideoIcon, Mail
 } from "lucide-react";
 import Image from "next/image";
 import AuthGuard from "./AuthGuard";
@@ -34,7 +34,6 @@ const NAV_ITEMS = [
   { href: "/owner-image", icon: ImageIcon, label: "Owner Image" },
   { href: "/hero-video", icon: VideoIcon, label: "Hero Video" },
   { href: "/messages", icon: Mail, label: "Messages", badge: UnreadMessagesBadge },
-  { href: "/settings", icon: SettingsIcon, label: "Settings" },
 ];
 
 export default function RootLayout({ children }) {
